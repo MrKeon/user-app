@@ -1,9 +1,8 @@
 import { Application } from "https://deno.land/x/oak@v17.1.4/mod.ts";
 import { oakCors } from "https://deno.land/x/cors/mod.ts";
-export const ENV = Deno.env.get("NODE_ENV") || "development";
 import { getRouter } from "./routes.ts";
+import { ENV, PORT } from "./config.ts";
 
-const PORT = Deno.env.get("PORT") || "8000";
 
 export const app = new Application();
 const router = await getRouter();

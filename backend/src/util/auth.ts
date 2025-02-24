@@ -1,8 +1,7 @@
 import { Context } from "https://deno.land/x/oak/mod.ts";
 import { JWTPayload, jwtVerify, SignJWT } from "npm:jose@5.9.6";
-import { GOOGLE_CLIENT_ID } from "../routes.ts";
+import { JWT_SECRET_STRING, GOOGLE_CLIENT_ID } from "../config.ts";
 
-const JWT_SECRET_STRING = Deno.env.get("JWT_SECRET") || "your-secret-key";
 const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_STRING);
 
 // Create JWT

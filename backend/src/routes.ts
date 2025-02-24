@@ -1,9 +1,8 @@
 import { Router, Context, RouterContext } from "https://deno.land/x/oak/mod.ts";
 import { compare, hash } from "https://deno.land/x/bcrypt/mod.ts";
-import { authMiddleware, createJWT, verifyJWT } from "./util/auth.ts";
-import { PostgresClient } from "./component/database/PostgresClient.ts";
-import { config } from "https://deno.land/x/dotenv/mod.ts";
-import { ENV } from "./app.ts";
+import { authMiddleware, createJWT } from "./util/auth.ts";
+import { GOOGLE_CLIENT_ID, GOOGLE_REDIRECT_URI, GOOGLE_CLIENT_SECRET, ENV } from "./config.ts";
+import { connectToDatabase } from "./component/database/init.ts";
 
 interface Account {
     id: string;
@@ -13,69 +12,6 @@ interface Account {
 
 interface User extends Account {
   password: string;
-}
-
-const envFileMap: Record<string, string> = {
-  development: ".local.env",
-  staging: ".staging.env",
-  production: ".production.env"
-};
-
-const envFile = envFileMap[ENV] || ".env"
-
-config({ path: envFile });
-
-// Database connection settings
-const DB_USER = Deno.env.get("DB_USER") || "postgres";
-const DB_PASSWORD = Deno.env.get("DB_PASSWORD") || "secret";
-const DB_NAME = Deno.env.get("DB_NAME") || "accounts";
-const DB_HOST = Deno.env.get("DB_HOST") || "localhost";
-const DB_PORT = Number(Deno.env.get("DB_PORT")) || 5432;
-export const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID") || "";
-export const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
-export const GOOGLE_REDIRECT_URI = Deno.env.get("GOOGLE_REDIRECT_URI") || "";
-
-console.log("DB_HOST:", Deno.env.get("DB_HOST"));
-console.log("DB_PORT:", Deno.env.get("DB_PORT"));
-console.log("DB_USER:", Deno.env.get("DB_USER"));
-
-
-let dbClient: PostgresClient | null = null;
-// Retry function to connect to the database
-async function connectToDatabase(retries = 5, delay = 5000) {
-  if (dbClient) return dbClient;
-  for (let i = 0; i < retries; i++) {
-    try {
-      console.log(`Attempting to connect to DB (Attempt ${i + 1})...`);
-      dbClient = new PostgresClient(
-        DB_USER,
-        DB_PASSWORD,
-        DB_NAME,
-        DB_HOST,
-        DB_PORT,
-      );
-
-      await dbClient.connect();
-
-      // Ensure the users table exists
-      await dbClient.query(`
-        CREATE TABLE IF NOT EXISTS users (
-          id SERIAL PRIMARY KEY,
-          name TEXT NOT NULL,
-          email TEXT UNIQUE NOT NULL,
-          password TEXT NOT NULL
-          google_id TEXT NOT NULL
-        );
-      `);
-      console.log("Users table is ready!");
-
-      return dbClient;
-    } catch (error) {
-      console.error("Database connection failed, retrying in 5s...", error);
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
-  }
-  throw new Error("Failed to connect to the database after multiple attempts.");
 }
   
 export const getRouter = async () => {
