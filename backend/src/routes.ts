@@ -312,5 +312,13 @@ export const getRouter = async () => {
         ctx.response.body = { error: err.message };
         }
     });
-        return router;
+    router.get("/page1", authMiddleware, ctx => {
+      ctx.response.status = 200;
+      ctx.response.body = { message: "Page1" };
+    })
+    router.get("/page2", authMiddleware, ctx => {
+      ctx.response.status = 200;
+      ctx.response.body = { message: "Page2" };
+    })
+    return router;
 }
