@@ -1,0 +1,9 @@
+{
+    "tasks": {
+      "start-local": "NODE_ENV=development deno run --allow-net --allow-env --allow-read --env-file=.local.env src/app.ts",
+      "start-staging": "NODE_ENV=staging deno run --allow-net --allow-env --allow-read --env-file=.local.env src/app.ts",
+      "start-production": "NODE_ENV=production deno run --allow-net --allow-env --allow-read --env-file=.local.env src/app.ts",
+      "test": "deno test --allow-net --allow-env --allow-read --allow-import --env-file=.test.env"
+    }
+  }
+  
